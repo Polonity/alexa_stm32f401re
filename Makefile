@@ -1976,10 +1976,14 @@ all: $(PROJECT).bin $(PROJECT).hex size
 $(PROJECT).link_script.ld: $(LINKER_SCRIPT)
 	@$(PREPROC) $< -o $@
 
+define append
+	+@echo $1 >> .link_options.txt
+	
+endef
 
-
-$(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) $(PROJECT).link_script.ld 
-	+@echo $(filter %.o, $^) > .link_options.txt
+$(PROJECT).elf: $(OBJECTS) $(SYS_OBJECTS) $(PROJECT).link_script.ld
+	+@echo. > .link_options.txt
+	$(foreach LINK_OPTION, $(filter %.o, $^), $(call append, $(LINK_OPTION)))
 	+@echo "link: $(notdir $@)"
 	@$(LD) $(LD_FLAGS) -T $(filter-out %.o, $^) $(LIBRARY_PATHS) --output $@ @.link_options.txt $(LIBRARIES) $(LD_SYS_LIBS)
 
